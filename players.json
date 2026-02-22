@@ -1,0 +1,73 @@
+[
+    {
+        "name": "ディエゴ・マルドラド",
+        "main_pos": [
+            "FW",
+            "MF"
+        ],
+        "sub_pos": [
+            "CF",
+            "AM"
+        ],
+        "foot": "左",
+        "hw": "165/69",
+        "policy": "ポゼッション",
+        "growth": "早熟",
+        "max_overall": 10092,
+        "style": "アタッカー",
+        "style_rank": "Ⅲ",
+        "inherit": "可",
+        "i_skill": "",
+        "i_trait": "勇往邁進",
+        "trait_lv": 1,
+        "personalities": [
+            "自信家"
+        ]
+    },
+    {
+        "name": "グラーフ",
+        "main_pos": [
+            "FW",
+            "MF"
+        ],
+        "sub_pos": [
+            "CF",
+            "AM"
+        ],
+        "foot": "右",
+        "hw": "178/67",
+        "policy": "ポゼッション",
+        "growth": "普通",
+        "max_overall": 10084,
+        "style": "ラインブレイカー",
+        "style_rank": "Ⅲ",
+        "inherit": "可",
+        "i_skill": "",
+        "i_trait": "勇往邁進",
+        "trait_lv": 1,
+        "personalities": []
+    },
+    {
+        "name": "バンチ",
+        "main_pos": [
+            "DF"
+        ],
+        "sub_pos": [
+            "CB"
+        ],
+        "foot": "右",
+        "hw": "176/70",
+        "policy": "ポゼッション",
+        "growth": "晩成",
+        "max_overall": 10035,
+        "style": "ストッパー",
+        "style_rank": "Ⅲ",
+        "inherit": "可",
+        "i_skill": "勇猛果敢なコンタクト",
+        "i_trait": "",
+        "trait_lv": 1,
+        "personalities": [
+            "リーダーの資質"
+        ]
+    }
+]

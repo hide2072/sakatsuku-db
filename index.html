@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>サカつく2026 サカつくモード選手データベース</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 100%; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { border-left: 6px solid #1a237e; padding-left: 15px; margin-bottom: 25px; font-size: 24px; color: #1a237e; }
+        
+        .filter-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            background: #f8f9fa; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #dee2e6; 
+        }
+        .filter-item label { display: block; font-weight: bold; font-size: 11px; margin-bottom: 6px; color: #1a237e; }
+        select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ced4da; font-size: 12px; }
+
+        .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; margin: 1px; display: inline-block; border: 1px solid #ced4da; font-weight: bold; }
+        .badge-fw { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .badge-mf { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; }
+        .badge-df { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+        .badge-gk { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+        .badge-policy-possession { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; }
+        .badge-policy-reaction { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+        .badge-policy-counter { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+        .badge-policy-moving { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .badge-inherit-yes { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .badge-inherit-no { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+        .badge-default { background: #f8f9fa; color: #666; }
+
+        table.dataTable thead th { background-color: #1a237e; color: white; padding: 10px; font-size: 11px; white-space: nowrap; }
+        .personality-btn { background-color: #1a237e; color: white; border: none; padding: 2px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; }
+        .search-only { display: none; }
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 15% auto; padding: 20px; border-radius: 10px; width: 300px; text-align: center; }
+        .close-btn { background: #666; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚽ サカつく2026 サカつくモード選手データベース</h1>
+    
+    <div class="filter-grid">
+        <div class="filter-item">
+            <label>ポジション種別</label>
+            <select id="filter_main_pos">
+                <option value="">全て</option>
+                <option value="FW">FW</option><option value="MF">MF</option><option value="DF">DF</option><option value="GK">GK</option>
+            </select>
+        </div>
+        <div class="filter-item"><label>詳細ポジション</label><select id="filter_sub_pos"><option value="">全て</option></select></div>
+        
+        <div class="filter-item">
+            <label>ポリシー</label>
+            <select id="filter_policy">
+                <option value="">全て</option>
+                <option value="ポゼッション">ポゼッション</option>
+                <option value="リアクション">リアクション</option>
+                <option value="カウンター">カウンター</option>
+                <option value="ムービング">ムービング</option>
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label>成長速度</label>
+            <select id="filter_growth">
+                <option value="">全て</option>
+                <option value="早熟">早熟</option>
+                <option value="普通">普通</option>
+                <option value="晩成">晩成</option>
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label>継承可否</label>
+            <select id="filter_inherit">
+                <option value="">全て</option><option value="可">可</option><option value="不可">不可</option>
+            </select>
+        </div>
+
+        <div class="filter-item"><label>プレイスタイル</label><select id="filter_style"><option value="">全て</option></select></div>
+        <div class="filter-item"><label>継承スキル</label><select id="filter_skill"><option value="">全て</option></select></div>
+        <div class="filter-item"><label>継承特徴</label><select id="filter_trait"><option value="">全て</option></select></div>
+        <div class="filter-item"><label>個性</label><select id="filter_pers"><option value="">全て</option></select></div>
+    </div>
+
+    <table id="playerTable" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>選手名</th><th>種別</th><th>詳細Pos</th><th>利き足</th><th>身長/体重</th><th>ポリシー</th><th>成長速度</th><th>最大総合力</th><th>プレイスタイル</th><th>ランク</th><th>継承</th><th>スキル</th><th>特徴</th><th>Lv</th><th>個性</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div id="pModal" class="modal"><div class="modal-content"><div id="modalTitle" style="font-weight:bold;margin-bottom:10px;"></div><div id="modalBody"></div><button class="close-btn" onclick="closeModal()">閉じる</button></div></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+    function getPosClass(pos) {
+        if (!pos) return 'badge-default';
+        const p = pos.toUpperCase();
+        if (["FW","LW","CF","RW"].some(x => p.includes(x))) return 'badge-fw';
+        if (["MF","LM","RM","AM","DM"].some(x => p.includes(x))) return 'badge-mf';
+        if (["DF","LB","RB","CB"].some(x => p.includes(x))) return 'badge-df';
+        if (p.includes("GK")) return 'badge-gk';
+        return 'badge-default';
+    }
+
+    function getPolicyClass(policy) {
+        switch(policy) {
+            case 'ポゼッション': return 'badge-policy-possession';
+            case 'リアクション': return 'badge-policy-reaction';
+            case 'カウンター': return 'badge-policy-counter';
+            case 'ムービング': return 'badge-policy-moving';
+            default: return 'badge-default';
+        }
+    }
+
+    function closeModal() { document.getElementById('pModal').style.display = 'none'; }
+    function openModalFromBtn(btn) {
+        const name = btn.getAttribute('data-name');
+        const list = btn.getAttribute('data-list').split(',');
+        document.getElementById('modalTitle').innerText = name + " の個性一覧";
+        const body = document.getElementById('modalBody');
+        body.innerHTML = '';
+        list.forEach(p => { body.innerHTML += `<span class="badge badge-default">${p}</span>`; });
+        document.getElementById('pModal').style.display = 'block';
+    }
+
+    $(document).ready(function() {
+        const subPosMap = {"FW":["LW","CF","RW"],"MF":["LM","RM","AM","DM"],"DF":["LB","RB","CB"],"GK":["GK"]};
+        
+        var table = $('#playerTable').DataTable({
+            ajax: { url: 'players.json', dataSrc: '' },
+            columns: [
+                { data: 'name' },
+                { 
+                    data: 'main_pos', 
+                    render: d => Array.isArray(d) ? d.map(x => `<span class="badge ${getPosClass(x)}">${x}</span>`).join(' ') : `<span class="badge ${getPosClass(d)}">${d}</span>` 
+                },
+                { 
+                    data: 'sub_pos', 
+                    render: d => Array.isArray(d) ? d.map(x => `<span class="badge ${getPosClass(x)}">${x}</span>`).join(' ') : `<span class="badge ${getPosClass(d)}">${d}</span>` 
+                },
+                { data: 'foot' }, 
+                { data: 'hw' }, 
+                { 
+                    data: 'policy',
+                    render: d => `<span class="badge ${getPolicyClass(d)}">${d}</span>`
+                },
+                { data: 'growth' }, 
+                { data: 'max_overall' },
+                { data: 'style' }, 
+                { data: 'style_rank' }, 
+                { 
+                    data: 'inherit',
+                    render: d => d === '可' ? `<span class="badge badge-inherit-yes">可</span>` : `<span class="badge badge-inherit-no">不可</span>`
+                }, 
+                { data: 'i_skill', render: d => d ? d : "-" },
+                { data: 'i_trait', render: d => d ? d : "-" },
+                { data: 'trait_lv' },
+                { 
+                    data: 'personalities',
+                    render: function(data, type, row) {
+                        if(!data || data.length === 0) return "-";
+                        let display = data.slice(0, 3).map(p => `<span class="badge badge-default">${p}</span>`).join('');
+                        let searchOnly = `<span class="search-only">${data.join(' ')}</span>`;
+                        let btn = data.length > 3 ? `<button class="personality-btn" data-name="${row.name}" data-list="${data.join(',')}" onclick="openModalFromBtn(this)">+${data.length - 3}</button>` : '';
+                        return display + searchOnly + btn;
+                    }
+                }
+            ],
+            scrollX: true, order: [[7, "desc"]],
+            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/ja.json" },
+            initComplete: function(settings, json) {
+                updateDynamicFilters(json);
+            }
+        });
+
+        function updateDynamicFilters(data) {
+            let styles = new Set();
+            let skills = new Set();
+            let traits = new Set();
+            let personalities = new Set();
+            data.forEach(p => {
+                if (p.style) styles.add(p.style);
+                if (p.i_skill) skills.add(p.i_skill);
+                if (p.i_trait) traits.add(p.i_trait);
+                if (p.personalities) p.personalities.forEach(pers => personalities.add(pers));
+            });
+            fillSelect('filter_style', styles);
+            fillSelect('filter_skill', skills);
+            fillSelect('filter_trait', traits);
+            fillSelect('filter_pers', personalities);
+        }
+
+        function fillSelect(id, set) {
+            const select = document.getElementById(id);
+            Array.from(set).sort().forEach(val => {
+                let opt = document.createElement('option');
+                opt.value = val;
+                opt.innerHTML = val;
+                select.appendChild(opt);
+            });
+        }
+
+        // --- フィルターイベント ---
+
+        // ポジション種別（バグ修正済み）
+        $('#filter_main_pos').on('change', function() {
+            const val = this.value;
+            const $sub = $('#filter_sub_pos').empty().append('<option value="">全て</option>');
+            
+            // 重要：種別を変えたら、詳細Posの検索条件を完全にクリアする
+            table.column(2).search('').draw();
+
+            if (val === "GK") {
+                $sub.find('option[value=""]').remove();
+                $sub.append('<option value="GK">GK</option>');
+                // GKの場合は種別を選んだ時点で詳細もGKに絞る
+                table.column(2).search('GK');
+            } else if (val) {
+                subPosMap[val].forEach(p => $sub.append(`<option value="${p}">${p}</option>`));
+            }
+            
+            // 種別列の絞り込み実行
+            table.column(1).search(val ? val : '', true, false).draw();
+        });
+
+        // 詳細ポジション
+        $('#filter_sub_pos').on('change', function() { 
+            table.column(2).search(this.value ? this.value : '', true, false).draw(); 
+        });
+
+        // ポリシー
+        $('#filter_policy').on('change', function() { 
+            table.column(5).search(this.value).draw(); 
+        });
+
+        // 成長速度（新規追加）
+        $('#filter_growth').on('change', function() { 
+            table.column(6).search(this.value).draw(); 
+        });
+
+        $('#filter_inherit').on('change', function() { table.column(10).search(this.value).draw(); });
+        $('#filter_style').on('change', function() { table.column(8).search(this.value).draw(); });
+        $('#filter_skill').on('change', function() { table.column(11).search(this.value).draw(); });
+        $('#filter_trait').on('change', function() { table.column(12).search(this.value).draw(); });
+        $('#filter_pers').on('change', function() { table.column(14).search(this.value).draw(); });
+    });
+</script>
+</body>
+</html>
