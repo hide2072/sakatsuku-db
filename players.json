@@ -69,5 +69,26 @@
         "personalities": [
             "リーダーの資質"
         ]
+    },
+    {
+        "name": "タイキーノ山本",
+        "main_pos": [
+            "FW"
+        ],
+        "sub_pos": [
+            "CF"
+        ],
+        "foot": "左",
+        "hw": "182/70",
+        "policy": "ポゼッション",
+        "growth": "普通",
+        "max_overall": 8721,
+        "style": "ストライカー",
+        "style_rank": "Ⅱ",
+        "inherit": "不可",
+        "i_skill": "",
+        "i_trait": "",
+        "trait_lv": 1,
+        "personalities": []
     }
 ]
