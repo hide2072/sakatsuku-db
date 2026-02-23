@@ -2,16 +2,19 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>サカつく2026 サカつくモード選手データベース</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <style>
+        /* --- 基本デザイン --- */
         body { font-family: "Meiryo", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 100%; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         h1 { border-left: 6px solid #1a237e; padding-left: 15px; margin-bottom: 25px; font-size: 24px; color: #1a237e; }
         
+        /* フィルターグリッド */
         .filter-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
             gap: 15px; 
             margin-bottom: 30px; 
             background: #f8f9fa; 
@@ -20,27 +23,50 @@
             border: 1px solid #dee2e6; 
         }
         .filter-item label { display: block; font-weight: bold; font-size: 11px; margin-bottom: 6px; color: #1a237e; }
-        select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ced4da; font-size: 12px; }
+        select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ced4da; font-size: 12px; cursor: pointer; }
 
+        /* --- バッジ・カラー設定 --- */
         .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; margin: 1px; display: inline-block; border: 1px solid #ced4da; font-weight: bold; }
+        
+        /* ポジション別 */
         .badge-fw { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
         .badge-mf { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; }
         .badge-df { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
         .badge-gk { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
-        .badge-policy-possession { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; }
-        .badge-policy-reaction { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
-        .badge-policy-counter { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
-        .badge-policy-moving { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+
+        /* ポリシー別 */
+        .badge-policy-possession { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; } /* オレンジ */
+        .badge-policy-reaction { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }   /* 青 */
+        .badge-policy-counter { background: #ffebee; color: #c62828; border-color: #ef9a9a; }    /* 赤 */
+        .badge-policy-moving { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }     /* 緑 */
+
+        /* 継承別 */
         .badge-inherit-yes { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
         .badge-inherit-no { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+
         .badge-default { background: #f8f9fa; color: #666; }
 
+        /* テーブル設定 */
         table.dataTable thead th { background-color: #1a237e; color: white; padding: 10px; font-size: 11px; white-space: nowrap; }
         .personality-btn { background-color: #1a237e; color: white; border: none; padding: 2px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; }
         .search-only { display: none; }
+
+        /* モーダル */
         .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: white; margin: 15% auto; padding: 20px; border-radius: 10px; width: 300px; text-align: center; }
         .close-btn { background: #666; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
+
+        /* --- スマホ用レスポンシブ調整 --- */
+        @media screen and (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 18px; margin-bottom: 15px; }
+            .filter-grid { padding: 10px; gap: 10px; }
+            table.dataTable { font-size: 9px !important; }
+            .badge { padding: 1px 5px; font-size: 8px; }
+            .filter-item label { font-size: 10px; }
+            select { font-size: 11px; padding: 5px; }
+        }
     </style>
 </head>
 <body>
@@ -57,7 +83,6 @@
             </select>
         </div>
         <div class="filter-item"><label>詳細ポジション</label><select id="filter_sub_pos"><option value="">全て</option></select></div>
-        
         <div class="filter-item">
             <label>ポリシー</label>
             <select id="filter_policy">
@@ -68,24 +93,19 @@
                 <option value="ムービング">ムービング</option>
             </select>
         </div>
-
         <div class="filter-item">
             <label>成長速度</label>
             <select id="filter_growth">
                 <option value="">全て</option>
-                <option value="早熟">早熟</option>
-                <option value="普通">普通</option>
-                <option value="晩成">晩成</option>
+                <option value="早熟">早熟</option><option value="普通">普通</option><option value="晩成">晩成</option>
             </select>
         </div>
-
         <div class="filter-item">
             <label>継承可否</label>
             <select id="filter_inherit">
                 <option value="">全て</option><option value="可">可</option><option value="不可">不可</option>
             </select>
         </div>
-
         <div class="filter-item"><label>プレイスタイル</label><select id="filter_style"><option value="">全て</option></select></div>
         <div class="filter-item"><label>継承スキル</label><select id="filter_skill"><option value="">全て</option></select></div>
         <div class="filter-item"><label>継承特徴</label><select id="filter_trait"><option value="">全て</option></select></div>
@@ -108,6 +128,7 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
+    // --- ヘルパー関数 ---
     function getPosClass(pos) {
         if (!pos) return 'badge-default';
         const p = pos.toUpperCase();
@@ -189,71 +210,42 @@
             }
         });
 
+        // 動的フィルタ更新
         function updateDynamicFilters(data) {
-            let styles = new Set();
-            let skills = new Set();
-            let traits = new Set();
-            let personalities = new Set();
+            let styles = new Set(); let skills = new Set(); let traits = new Set(); let personalities = new Set();
             data.forEach(p => {
                 if (p.style) styles.add(p.style);
                 if (p.i_skill) skills.add(p.i_skill);
                 if (p.i_trait) traits.add(p.i_trait);
                 if (p.personalities) p.personalities.forEach(pers => personalities.add(pers));
             });
-            fillSelect('filter_style', styles);
-            fillSelect('filter_skill', skills);
-            fillSelect('filter_trait', traits);
-            fillSelect('filter_pers', personalities);
+            fillSelect('filter_style', styles); fillSelect('filter_skill', skills); fillSelect('filter_trait', traits); fillSelect('filter_pers', personalities);
         }
 
         function fillSelect(id, set) {
             const select = document.getElementById(id);
             Array.from(set).sort().forEach(val => {
-                let opt = document.createElement('option');
-                opt.value = val;
-                opt.innerHTML = val;
+                let opt = document.createElement('option'); opt.value = val; opt.innerHTML = val;
                 select.appendChild(opt);
             });
         }
 
-        // --- フィルターイベント ---
-
-        // ポジション種別（バグ修正済み）
+        // --- フィルター連動イベント ---
         $('#filter_main_pos').on('change', function() {
             const val = this.value;
             const $sub = $('#filter_sub_pos').empty().append('<option value="">全て</option>');
-            
-            // 重要：種別を変えたら、詳細Posの検索条件を完全にクリアする
-            table.column(2).search('').draw();
-
+            table.column(2).search('').draw(); // 詳細検索をリセット
             if (val === "GK") {
-                $sub.find('option[value=""]').remove();
-                $sub.append('<option value="GK">GK</option>');
-                // GKの場合は種別を選んだ時点で詳細もGKに絞る
-                table.column(2).search('GK');
+                $sub.find('option[value=""]').remove(); $sub.append('<option value="GK">GK</option>'); table.column(2).search('GK');
             } else if (val) {
                 subPosMap[val].forEach(p => $sub.append(`<option value="${p}">${p}</option>`));
             }
-            
-            // 種別列の絞り込み実行
             table.column(1).search(val ? val : '', true, false).draw();
         });
 
-        // 詳細ポジション
-        $('#filter_sub_pos').on('change', function() { 
-            table.column(2).search(this.value ? this.value : '', true, false).draw(); 
-        });
-
-        // ポリシー
-        $('#filter_policy').on('change', function() { 
-            table.column(5).search(this.value).draw(); 
-        });
-
-        // 成長速度（新規追加）
-        $('#filter_growth').on('change', function() { 
-            table.column(6).search(this.value).draw(); 
-        });
-
+        $('#filter_sub_pos').on('change', function() { table.column(2).search(this.value ? this.value : '', true, false).draw(); });
+        $('#filter_policy').on('change', function() { table.column(5).search(this.value).draw(); });
+        $('#filter_growth').on('change', function() { table.column(6).search(this.value).draw(); });
         $('#filter_inherit').on('change', function() { table.column(10).search(this.value).draw(); });
         $('#filter_style').on('change', function() { table.column(8).search(this.value).draw(); });
         $('#filter_skill').on('change', function() { table.column(11).search(this.value).draw(); });
