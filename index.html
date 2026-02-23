@@ -6,66 +6,38 @@
     <title>サカつく2026 サカつくモード選手データベース</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <style>
-        /* --- 基本デザイン --- */
+        /* --- デザイン設定 (変更なし) --- */
         body { font-family: "Meiryo", sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 100%; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         h1 { border-left: 6px solid #1a237e; padding-left: 15px; margin-bottom: 25px; font-size: 24px; color: #1a237e; }
-        
-        /* フィルターグリッド */
-        .filter-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-            gap: 15px; 
-            margin-bottom: 30px; 
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 8px; 
-            border: 1px solid #dee2e6; 
-        }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; }
         .filter-item label { display: block; font-weight: bold; font-size: 11px; margin-bottom: 6px; color: #1a237e; }
         select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ced4da; font-size: 12px; cursor: pointer; }
-
-        /* --- バッジ・カラー設定 --- */
         .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; margin: 1px; display: inline-block; border: 1px solid #ced4da; font-weight: bold; }
-        
-        /* ポジション別 */
         .badge-fw { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
         .badge-mf { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; }
         .badge-df { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
         .badge-gk { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
-
-        /* ポリシー別 */
-        .badge-policy-possession { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; } /* オレンジ */
-        .badge-policy-reaction { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }   /* 青 */
-        .badge-policy-counter { background: #ffebee; color: #c62828; border-color: #ef9a9a; }    /* 赤 */
-        .badge-policy-moving { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }     /* 緑 */
-
-        /* 継承別 */
+        .badge-policy-possession { background: #fff3e0; color: #ef6c00; border-color: #ffcc80; }
+        .badge-policy-reaction { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+        .badge-policy-counter { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+        .badge-policy-moving { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
         .badge-inherit-yes { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
         .badge-inherit-no { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
-
         .badge-default { background: #f8f9fa; color: #666; }
-
-        /* テーブル設定 */
         table.dataTable thead th { background-color: #1a237e; color: white; padding: 10px; font-size: 11px; white-space: nowrap; }
         .personality-btn { background-color: #1a237e; color: white; border: none; padding: 2px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; }
         .search-only { display: none; }
-
-        /* モーダル */
         .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: white; margin: 15% auto; padding: 20px; border-radius: 10px; width: 300px; text-align: center; }
         .close-btn { background: #666; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
 
-        /* --- スマホ用レスポンシブ調整 --- */
         @media screen and (max-width: 600px) {
             body { padding: 10px; }
             .container { padding: 15px; }
             h1 { font-size: 18px; margin-bottom: 15px; }
-            .filter-grid { padding: 10px; gap: 10px; }
             table.dataTable { font-size: 9px !important; }
             .badge { padding: 1px 5px; font-size: 8px; }
-            .filter-item label { font-size: 10px; }
-            select { font-size: 11px; padding: 5px; }
         }
     </style>
 </head>
@@ -149,6 +121,20 @@
         }
     }
 
+    // 完全一致検索用の共通関数
+    // valが空なら検索解除、あれば ^val$ で検索
+    function exactSearch(table, colIdx, val) {
+        if (val === "") {
+            table.column(colIdx).search("").draw();
+        } else {
+            // 文字列をエスケープして正規表現の完全一致を作成
+            const escapedVal = $.fn.dataTable.util.escapeRegex(val);
+            // 複数項目（ポジションや個性）が含まれる列でも、その単語単体で一致するように調整
+            // 基本は ^val$ だが、HTMLタグやカンマ区切りの中からも見つけられるようにする
+            table.column(colIdx).search(escapedVal ? "(^|\\s|>)" + escapedVal + "($|\\s|<)" : "", true, false).draw();
+        }
+    }
+
     function closeModal() { document.getElementById('pModal').style.display = 'none'; }
     function openModalFromBtn(btn) {
         const name = btn.getAttribute('data-name');
@@ -175,16 +161,9 @@
                     data: 'sub_pos', 
                     render: d => Array.isArray(d) ? d.map(x => `<span class="badge ${getPosClass(x)}">${x}</span>`).join(' ') : `<span class="badge ${getPosClass(d)}">${d}</span>` 
                 },
-                { data: 'foot' }, 
-                { data: 'hw' }, 
-                { 
-                    data: 'policy',
-                    render: d => `<span class="badge ${getPolicyClass(d)}">${d}</span>`
-                },
-                { data: 'growth' }, 
-                { data: 'max_overall' },
-                { data: 'style' }, 
-                { data: 'style_rank' }, 
+                { data: 'foot' }, { data: 'hw' }, 
+                { data: 'policy', render: d => `<span class="badge ${getPolicyClass(d)}">${d}</span>` },
+                { data: 'growth' }, { data: 'max_overall' }, { data: 'style' }, { data: 'style_rank' }, 
                 { 
                     data: 'inherit',
                     render: d => d === '可' ? `<span class="badge badge-inherit-yes">可</span>` : `<span class="badge badge-inherit-no">不可</span>`
@@ -205,12 +184,9 @@
             ],
             scrollX: true, order: [[7, "desc"]],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/ja.json" },
-            initComplete: function(settings, json) {
-                updateDynamicFilters(json);
-            }
+            initComplete: function(settings, json) { updateDynamicFilters(json); }
         });
 
-        // 動的フィルタ更新
         function updateDynamicFilters(data) {
             let styles = new Set(); let skills = new Set(); let traits = new Set(); let personalities = new Set();
             data.forEach(p => {
@@ -230,27 +206,28 @@
             });
         }
 
-        // --- フィルター連動イベント ---
+        // --- フィルターイベント（すべて完全一致化） ---
         $('#filter_main_pos').on('change', function() {
             const val = this.value;
             const $sub = $('#filter_sub_pos').empty().append('<option value="">全て</option>');
-            table.column(2).search('').draw(); // 詳細検索をリセット
+            table.column(2).search('').draw(); 
             if (val === "GK") {
-                $sub.find('option[value=""]').remove(); $sub.append('<option value="GK">GK</option>'); table.column(2).search('GK');
+                $sub.find('option[value=""]').remove(); $sub.append('<option value="GK">GK</option>'); 
+                exactSearch(table, 2, "GK");
             } else if (val) {
                 subPosMap[val].forEach(p => $sub.append(`<option value="${p}">${p}</option>`));
             }
-            table.column(1).search(val ? val : '', true, false).draw();
+            exactSearch(table, 1, val);
         });
 
-        $('#filter_sub_pos').on('change', function() { table.column(2).search(this.value ? this.value : '', true, false).draw(); });
-        $('#filter_policy').on('change', function() { table.column(5).search(this.value).draw(); });
-        $('#filter_growth').on('change', function() { table.column(6).search(this.value).draw(); });
-        $('#filter_inherit').on('change', function() { table.column(10).search(this.value).draw(); });
-        $('#filter_style').on('change', function() { table.column(8).search(this.value).draw(); });
-        $('#filter_skill').on('change', function() { table.column(11).search(this.value).draw(); });
-        $('#filter_trait').on('change', function() { table.column(12).search(this.value).draw(); });
-        $('#filter_pers').on('change', function() { table.column(14).search(this.value).draw(); });
+        $('#filter_sub_pos').on('change', function() { exactSearch(table, 2, this.value); });
+        $('#filter_policy').on('change', function() { exactSearch(table, 5, this.value); });
+        $('#filter_growth').on('change', function() { exactSearch(table, 6, this.value); });
+        $('#filter_inherit').on('change', function() { exactSearch(table, 10, this.value); });
+        $('#filter_style').on('change', function() { exactSearch(table, 8, this.value); });
+        $('#filter_skill').on('change', function() { exactSearch(table, 11, this.value); });
+        $('#filter_trait').on('change', function() { exactSearch(table, 12, this.value); });
+        $('#filter_pers').on('change', function() { exactSearch(table, 14, this.value); });
     });
 </script>
 </body>
