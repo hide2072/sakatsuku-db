@@ -90,5 +90,28 @@
         "i_trait": "",
         "trait_lv": 1,
         "personalities": []
+    },
+    {
+        "name": "田村マーク闘理王",
+        "main_pos": [
+            "DF"
+        ],
+        "sub_pos": [
+            "CB"
+        ],
+        "foot": "右",
+        "hw": "185/85",
+        "policy": "ポゼッション",
+        "growth": "晩成",
+        "max_overall": 8476,
+        "style": "組立CB",
+        "style_rank": "Ⅱ",
+        "inherit": "不可",
+        "i_skill": "",
+        "i_trait": "",
+        "trait_lv": 1,
+        "personalities": [
+            "闘争心"
+        ]
     }
 ]
