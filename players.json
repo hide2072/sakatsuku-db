@@ -124,21 +124,16 @@
             "DM"
         ],
         "foot": "右",
-        "hw": "189/82",
+        "hw": "",
         "policy": "カウンター",
         "growth": "晩成",
-        "max_overall": 0,
-        "style": "ハードマーカー",
+        "max_overall": 9107,
+        "style": "ハードマーカ",
         "style_rank": "Ⅱ",
         "inherit": "可",
         "i_skill": "",
         "i_trait": "コンタクトアップ",
         "trait_lv": 2,
-        "personalities": [
-            "面倒見が良い",
-            "インフルエンサー",
-            "ファンサービスに熱心",
-            "自信家"
-        ]
+        "personalities": []
     }
 ]
